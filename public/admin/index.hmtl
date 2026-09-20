@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#141126">
+<title>Manage songs — Hush</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23ff6f91'/%3E%3Cpath d='M9 22V10m5 12V13m5 9V8m5 14v-7' stroke='%232b0f1b' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#1a1730; --bg-2:#141126; --surface:#252046; --surface-2:#332b5c;
+  --line:rgba(255,255,255,.1); --text:#f5f1ff; --muted:#a9a1cc; --accent:#ff6f91; --accent-ink:#2b0f1b; --danger:#ff8a8a; --ok:#7ee0a8;
+  --display:'Bricolage Grotesque','Avenir Next','Trebuchet MS',system-ui,sans-serif;
+  --body:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font:400 15px/1.45 var(--body);min-height:100dvh;padding:0 16px calc(48px + env(safe-area-inset-bottom,0px))}
+a{color:inherit}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+[hidden]{display:none!important}
+.wrap{max-width:860px;margin:0 auto}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:calc(18px + env(safe-area-inset-top,0px)) 0 18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font:800 24px/1 var(--display);letter-spacing:-.02em;text-decoration:none}
+.mark{width:24px;height:24px;border-radius:8px;background:var(--accent)}
+.links{display:flex;align-items:center;gap:16px;color:var(--muted)}
+.links a:hover,.links button:hover{color:var(--text)}
+.links button{background:none;border:0;color:inherit;text-decoration:underline;text-underline-offset:3px}
+h1{font:800 clamp(28px,5vw,40px)/1.1 var(--display);letter-spacing:-.025em;margin:8px 0 22px}
+h2{font:700 21px/1.2 var(--display);margin-bottom:14px}
+section{margin-bottom:40px}
+.panel{background:var(--surface);border-radius:18px;padding:22px}
+.muted{color:var(--muted)}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-weight:500;font-size:14px}
+input[type=text],input[type=password],input[list]{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 12px;width:100%;min-width:0}
+input:focus{border-color:var(--accent);outline:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--accent);color:var(--accent-ink);border:0;border-radius:999px;padding:11px 22px;font-weight:700}
+.btn:hover{filter:brightness(1.07)}
+.btn:disabled{opacity:.5;cursor:not-allowed;filter:none}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+.btn.small{padding:7px 14px;font-size:14px}
+.btn.danger{background:transparent;color:var(--danger);border:1px solid rgba(255,138,138,.4)}
+.msg{margin-top:12px;font-size:14px}
+.msg.err{color:var(--danger)}
+code{background:var(--bg);padding:2px 6px;border-radius:6px;font-size:13px}
+pre{background:var(--bg);padding:12px 14px;border-radius:10px;overflow-x:auto;margin:10px 0;font-size:13px}
+
+.drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;border:2px dashed var(--line);border-radius:16px;padding:30px 16px;cursor:pointer;margin-bottom:18px}
+.drop:hover,.drop.over{border-color:var(--accent);background:rgba(255,111,145,.06)}
+.drop strong{font-size:16px}
+.drop input{position:absolute;width:1px;height:1px;opacity:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.covrow{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.covprev{width:64px;height:64px;border-radius:10px;background:var(--bg);object-fit:cover;flex:none;border:1px solid var(--line)}
+.covrow input[type=file]{font-size:13px;max-width:100%}
+
+.item{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.item .fn{grid-column:1/-1;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .bar{grid-column:1/-1;height:4px;border-radius:2px;background:var(--bg);overflow:hidden}
+.item .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .15s}
+.item .st{grid-column:1/-1;font-size:13px}
+.item .st.err{color:var(--danger)}
+.item .st.ok{color:var(--ok)}
+.x{background:none;border:0;color:var(--muted);width:32px;height:32px;border-radius:50%;font-size:20px;line-height:1}
+.x:hover{color:var(--text);background:rgba(255,255,255,.08)}
+
+.track{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:14px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.track:first-child{border-top:0}
+.track .cv{width:48px;height:48px;border-radius:8px;overflow:hidden;background:linear-gradient(135deg,hsl(var(--h) 60% 50%),hsl(calc(var(--h) + 50) 60% 30%))}
+.track .cv img{width:100%;height:100%;object-fit:cover;display:block}
+.track .t{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.track .s{color:var(--muted);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.track .acts{display:flex;gap:8px}
+.track .edit{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:center}
+.count{color:var(--muted);font-weight:400;font-size:16px}
+@media (max-width:640px){
+  .grid2{grid-template-columns:1fr}
+  .item{grid-template-columns:1fr auto}
+  .item input.artist{grid-column:1}
+  .track .edit{grid-template-columns:1fr 1fr}
+  .track .acts{flex-direction:column}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="/"><span class="mark" aria-hidden="true"></span>Hush</a>
+    <div class="links"><a href="/">Back to player</a><button id="signout" hidden>Sign out</button></div>
+  </header>
+
+  <main>
+    <section id="setup" hidden>
+      <h1>One more step</h1>
+      <div class="panel">
+        <p>Choose an admin password so only you can add songs. Run this in the project folder, then reload this page:</p>
+        <pre>npx wrangler secret put ADMIN_PASSWORD</pre>
+        <p class="muted">Use something long. For local testing, put <code>ADMIN_PASSWORD=yourpassword</code> in a file named <code>.dev.vars</code>.</p>
+      </div>
+    </section>
+
+    <section id="login" hidden>
+      <h1>Manage songs</h1>
+      <form class="panel" id="loginForm" style="max-width:420px">
+        <div class="field"><label for="pw">Admin password</label><input id="pw" type="password" autocomplete="current-password" required></div>
+        <button class="btn" type="submit">Sign in</button>
+        <p class="msg err" id="loginErr" role="alert" hidden></p>
+      </form>
+    </section>
+
+    <div id="panel" hidden>
+      <h1>Manage songs</h1>
+
+      <section aria-labelledby="upTitle">
+        <h2 id="upTitle">Add songs</h2>
+        <div class="panel">
+          <label class="drop" id="drop">
+            <strong>Choose audio files</strong>
+            <span class="muted">or drop them here · MP3, M4A, FLAC, OGG, WAV · up to 95 MB each</span>
+            <input id="files" type="file" accept="audio/*,.mp3,.m4a,.aac,.flac,.ogg,.oga,.opus,.wav,.webm" multiple>
+          </label>
+
+          <div class="grid2">
+            <div class="field"><label for="artist">Artist</label><input id="artist" type="text" list="artistList" maxlength="120" placeholder="Applies to every song below" autocomplete="off"></div>
+            <div class="field"><label for="genre">Genre <span class="muted">(optional)</span></label><input id="genre" type="text" list="genreList" maxlength="40" placeholder="e.g. Lo-Fi" autocomplete="off"></div>
+          </div>
+          <datalist id="artistList"></datalist><datalist id="genreList"></datalist>
+
+          <div class="covrow">
+            <img class="covprev" id="covPrev" alt="" hidden>
+            <div class="field" style="margin:0"><label for="cov">Cover art <span class="muted">(optional, used for every song in this upload)</span></label><input id="cov" type="file" accept="image/*"></div>
+          </div>
+
+          <div id="queue"></div>
+          <div style="display:flex;gap:10px;align-items:center;margin-top:8px;flex-wrap:wrap">
+            <button class="btn" id="go" disabled>Upload</button>
+            <button class="btn ghost" id="clear" hidden>Clear list</button>
+            <span class="msg" id="upMsg" role="status" style="margin:0"></span>
+          </div>
+          <p class="muted" style="margin-top:14px;font-size:13px">Only upload music you made or have the rights to share.</p>
+        </div>
+      </section>
+
+      <section aria-labelledby="libTitle">
+        <h2 id="libTitle">Your library <span class="count" id="libCount"></span></h2>
+        <div class="panel" id="lib"><p class="muted">Loading…</p></div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const hue = str => { let h = 0; for (const c of String(str)) h = (h * 31 + c.charCodeAt(0)) % 360; return h; };
+const fmt = s => { s = Math.max(0, Math.round(s || 0)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+
+/* ---------- api ---------- */
+async function api(path, opts = {}) {
+  const res = await fetch('/api/admin' + path, { credentials: 'same-origin', ...opts });
+  let data = null; try { data = await res.json(); } catch { /* no body */ }
+  if (res.status === 401 && path !== '/login') { show('login'); throw new Error('Please sign in.'); }
+  if (!res.ok) throw new Error(data?.error || 'Request failed (' + res.status + ')');
+  return data;
+}
+const postJSON = (path, body, method = 'POST') => api(path, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+
+function xhrPut(url, body, type, onProgress) {
+  return new Promise((resolve, reject) => {
+    const x = new XMLHttpRequest();
+    x.open('PUT', url); x.withCredentials = true; x.setRequestHeader('Content-Type', type);
+    x.upload.onprogress = e => { if (e.lengthComputable && onProgress) onProgress(e.loaded / e.total); };
+    x.onload = () => {
+      let d = null; try { d = JSON.parse(x.responseText); } catch { /* ignore */ }
+      if (x.status === 401) { show('login'); reject(new Error('Please sign in again.')); }
+      else if (x.status >= 200 && x.status < 300) resolve(d);
+      else reject(new Error(d?.error || 'Upload failed (' + x.status + ')'));
+    };
+    x.onerror = () => reject(new Error('Network error. Check your connection and try again.'));
+    x.send(body);
+  });
+}
+
+/* ---------- screens ---------- */
+function show(which) {
+  for (const id of ['setup', 'login', 'panel']) $('#' + id).hidden = id !== which;
+  $('#signout').hidden = which !== 'panel';
+  if (which === 'login') $('#pw').focus();
+}
+async function init() {
+  try {
+    const s = await (await fetch('/api/admin/session', { credentials: 'same-origin' })).json();
+    if (!s.configured) return show('setup');
+    if (!s.authed) return show('login');
+    show('panel'); loadLibrary();
+  } catch { show('login'); }
+}
+$('#loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const err = $('#loginErr'); err.hidden = true;
+  try {
+    await postJSON('/login', { password: $('#pw').value });
+    $('#pw').value = ''; show('panel'); loadLibrary();
+  } catch (ex) { err.textContent = ex.message; err.hidden = false; }
+});
+$('#signout').addEventListener('click', async () => { try { await postJSON('/logout', {}); } catch { /* ignore */ } show('login'); });
+
+/* ---------- upload queue ---------- */
+const EXT = { mp3: 'audio/mpeg', m4a: 'audio/mp4', aac: 'audio/aac', ogg: 'audio/ogg', oga: 'audio/ogg', opus: 'audio/ogg', wav: 'audio/wav', flac: 'audio/flac', webm: 'audio/webm' };
+const typeOf = f => f.type && f.type.startsWith('audio/') ? f.type : (EXT[f.name.split('.').pop().toLowerCase()] || '');
+function guess(name) {
+  let base = name.replace(/\.[^.]+$/, '').replace(/_/g, ' ').trim().replace(/^\d{1,3}\s*[-.)]\s*/, '');
+  const i = base.indexOf(' - ');
+  return i > 0 ? { artist: base.slice(0, i).trim(), title: base.slice(i + 3).trim() } : { artist: '', title: base };
+}
+let items = [], coverBlob = null, busy = false;
+
+function addFiles(fileList) {
+  let skipped = 0;
+  for (const file of fileList) {
+    if (!typeOf(file)) { skipped++; continue; }
+    const g = guess(file.name);
+    items.push({ file, title: g.title, artist: g.artist || $('#artist').value.trim(), status: 'ready', progress: 0, error: '' });
+  }
+  $('#upMsg').textContent = skipped ? skipped + ' file' + (skipped > 1 ? 's' : '') + ' skipped (not audio).' : '';
+  renderQueue();
+}
+function renderQueue() {
+  const q = $('#queue');
+  q.innerHTML = items.map((it, i) => `
+    <div class="item" data-i="${i}">
+      <input type="text" class="title" value="${esc(it.title)}" placeholder="Title" maxlength="200" aria-label="Title" ${it.status !== 'ready' && it.status !== 'error' ? 'disabled' : ''}>
+      <input type="text" class="artist" value="${esc(it.artist)}" placeholder="Artist" maxlength="120" list="artistList" aria-label="Artist" ${it.status !== 'ready' && it.status !== 'error' ? 'disabled' : ''}>
+      <button class="x" data-remove aria-label="Remove ${esc(it.file.name)}" ${busy ? 'disabled' : ''}>×</button>
+      <div class="fn">${esc(it.file.name)} · ${(it.file.size / 1048576).toFixed(1)} MB</div>
+      ${it.status === 'uploading' ? `<div class="bar"><i style="width:${Math.round(it.progress * 100)}%"></i></div>` : ''}
+      ${it.status === 'done' ? '<div class="st ok">Published</div>' : ''}
+      ${it.status === 'error' ? `<div class="st err">${esc(it.error)}</div>` : ''}
+    </div>`).join('');
+  const pending = items.filter(i => i.status === 'ready' || i.status === 'error').length;
+  $('#go').disabled = busy || !pending;
+  $('#go').textContent = pending ? 'Upload ' + pending + (pending === 1 ? ' song' : ' songs') : 'Upload';
+  $('#clear').hidden = !items.length || busy;
+}
+$('#queue').addEventListener('input', e => {
+  const row = e.target.closest('.item'); if (!row) return;
+  const it = items[+row.dataset.i];
+  if (e.target.classList.contains('title')) it.title = e.target.value;
+  if (e.target.classList.contains('artist')) it.artist = e.target.value;
+});
+$('#queue').addEventListener('click', e => {
+  if (!e.target.closest('[data-remove]') || busy) return;
+  items.splice(+e.target.closest('.item').dataset.i, 1); renderQueue();
+});
+$('#clear').addEventListener('click', () => { items = []; $('#upMsg').textContent = ''; renderQueue(); });
+$('#files').addEventListener('change', e => { addFiles(e.target.files); e.target.value = ''; });
+$('#artist').addEventListener('input', e => {
+  items.forEach(it => { if (it.status === 'ready' && !guess(it.file.name).artist) it.artist = e.target.value.trim(); });
+  if (!busy) renderQueue();
+});
+const drop = $('#drop');
+['dragenter', 'dragover'].forEach(n => drop.addEventListener(n, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave', 'drop'].forEach(n => drop.addEventListener(n, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => addFiles(e.dataTransfer.files));
+
+// Cover: centre-crop to a square and shrink so covers stay tiny.
+$('#cov').addEventListener('change', async e => {
+  const f = e.target.files[0]; coverBlob = null; $('#covPrev').hidden = true;
+  if (!f) return;
+  try {
+    const bmp = await createImageBitmap(f);
+    const side = Math.min(bmp.width, bmp.height), out = Math.min(800, side);
+    const c = document.createElement('canvas'); c.width = c.height = out;
+    c.getContext('2d').drawImage(bmp, (bmp.width - side) / 2, (bmp.height - side) / 2, side, side, 0, 0, out, out);
+    coverBlob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.85));
+    $('#covPrev').src = URL.createObjectURL(coverBlob); $('#covPrev').hidden = false;
+  } catch { $('#upMsg').textContent = 'That image couldn’t be read. Try a JPG or PNG.'; e.target.value = ''; }
+});
+
+function getDuration(file) {
+  return new Promise(res => {
+    const a = new Audio(), u = URL.createObjectURL(file); a.preload = 'metadata';
+    const done = v => { URL.revokeObjectURL(u); res(isFinite(v) ? Math.round(v) : 0); };
+    a.onloadedmetadata = () => done(a.duration); a.onerror = () => done(0);
+    setTimeout(() => done(0), 8000); a.src = u;
+  });
+}
+
+$('#go').addEventListener('click', async () => {
+  const genre = $('#genre').value.trim();
+  const todo = items.filter(i => i.status === 'ready' || i.status === 'error');
+  if (!todo.length) return;
+  if (todo.some(i => !i.title.trim() || !i.artist.trim())) { $('#upMsg').textContent = 'Every song needs a title and an artist.'; return; }
+  busy = true; $('#upMsg').textContent = ''; let ok = 0;
+  for (const it of todo) {
+    it.status = 'uploading'; it.progress = 0; it.error = ''; renderQueue();
+    try {
+      const duration = await getDuration(it.file);
+      const { id } = await xhrPut('/api/admin/audio', it.file, typeOf(it.file), p => {
+        it.progress = p; const bar = $(`.item[data-i="${items.indexOf(it)}"] .bar i`); if (bar) bar.style.width = Math.round(p * 100) + '%';
+      });
+      if (coverBlob) await xhrPut('/api/admin/cover/' + id, coverBlob, 'image/jpeg');
+      await postJSON('/tracks', { id, title: it.title.trim(), artist: it.artist.trim(), genre, duration, hasCover: !!coverBlob });
+      it.status = 'done'; ok++;
+    } catch (ex) { it.status = 'error'; it.error = ex.message; }
+    renderQueue();
+  }
+  busy = false; renderQueue();
+  $('#upMsg').textContent = ok ? ok + (ok === 1 ? ' song' : ' songs') + ' published.' : '';
+  loadLibrary();
+});
+
+/* ---------- library ---------- */
+let LIB = [];
+async function loadLibrary() {
+  try {
+    const res = await fetch('/api/library', { cache: 'no-cache' });
+    LIB = (await res.json()).tracks || [];
+    renderLibrary();
+  } catch { $('#lib').innerHTML = '<p class="msg err">Couldn’t load your library.</p>'; }
+}
+function renderLibrary() {
+  $('#libCount').textContent = LIB.length ? '(' + LIB.length + ')' : '';
+  $('#artistList').innerHTML = [...new Set(LIB.map(t => t.user.name))].map(a => `<option value="${esc(a)}">`).join('');
+  $('#genreList').innerHTML = [...new Set(LIB.map(t => t.genre).filter(Boolean))].map(g => `<option value="${esc(g)}">`).join('');
+  $('#lib').innerHTML = LIB.length ? LIB.map(t => `
+    <div class="track" data-id="${esc(t.id)}">
+      <div class="cv" style="--h:${hue(t.id)}">${t.artwork ? `<img src="${esc(t.artwork['150x150'])}" alt="" loading="lazy">` : ''}</div>
+      <div><div class="t">${esc(t.title)}</div><div class="s">${esc(t.user.name)}${t.genre ? ' · ' + esc(t.genre) : ''} · ${fmt(t.duration)}</div></div>
+      <div class="acts"><button class="btn ghost small" data-edit>Edit</button><button class="btn danger small" data-del>Delete</button></div>
+    </div>`).join('') : '<p class="muted">No songs yet. Add your first one above.</p>';
+}
+$('#lib').addEventListener('click', async e => {
+  const row = e.target.closest('.track'); if (!row) return;
+  const t = LIB.find(x => x.id === row.dataset.id); if (!t) return;
+  if (e.target.closest('[data-edit]')) {
+    if (row.querySelector('.edit')) return;
+    row.insertAdjacentHTML('beforeend', `<div class="edit">
+      <input type="text" class="e-title" value="${esc(t.title)}" maxlength="200" aria-label="Title">
+      <input type="text" class="e-artist" value="${esc(t.user.name)}" maxlength="120" list="artistList" aria-label="Artist">
+      <input type="text" class="e-genre" value="${esc(t.genre)}" maxlength="40" list="genreList" placeholder="Genre" aria-label="Genre">
+      <span style="display:flex;gap:8px"><button class="btn small" data-save>Save</button><button class="btn ghost small" data-cancel>Cancel</button></span>
+      <span class="msg err" style="grid-column:1/-1;margin:0" hidden></span></div>`);
+    row.querySelector('.e-title').focus();
+  } else if (e.target.closest('[data-cancel]')) {
+    row.querySelector('.edit').remove();
+  } else if (e.target.closest('[data-save]')) {
+    const box = row.querySelector('.edit'), err = box.lastElementChild; err.hidden = true;
+    try {
+      await postJSON('/tracks/' + t.id, { title: box.querySelector('.e-title').value, artist: box.querySelector('.e-artist').value, genre: box.querySelector('.e-genre').value }, 'PATCH');
+      await loadLibrary();
+    } catch (ex) { err.textContent = ex.message; err.hidden = false; }
+  } else if (e.target.closest('[data-del]')) {
+    if (!confirm('Delete “' + t.title + '”? This removes the audio file for good.')) return;
+    try { await api('/tracks/' + t.id, { method: 'DELETE' }); await loadLibrary(); }
+    catch (ex) { alert(ex.message); }
+  }
+});
+
+init();
+})();
+</script>
+</body>
+</html>
